@@ -1,0 +1,160 @@
+package br.unipar;
+
+import java.sql.*;
+
+public class Main {
+
+    private static final String url = "jdbc: postgresql://localhost:5432//Exemplo1";
+    private static final String user = "postgres";
+    private static final String password = "admin123";
+
+    public static void main(String[] args) {
+        criarTabelaUsuario();
+    }
+
+    public static Connection connection() throws SQLException {
+
+        // localhost-> Onde está o banco
+        //5432-> porta padrão do banco
+         return DriverManager.getConnection(url, user, password);
+    }
+
+    public static void criarTabelaUsuario(){
+    try {
+
+        Connection conn = connection();
+
+        Statement statement = conn.createStatement();
+        String sql = " CREATE TABLE IF NOT EXISTS usuarios ("
+                + " codigo SERIAL PRIMARY KEY,"
+                + " username VARCHAR(50) UNIQUE NOT NULL,"
+                + " password VARCHAR(300) NOT NULL"
+                + " nome VARCHAR(50) NOT NULL"
+                + " nascimento DATE)";
+
+        statement.executeUpdate(sql);
+
+        System.out.println("TABELA CRIADA");
+
+    }catch (SQLException exception){
+        exception.printStackTrace();
+    }
+
+
+    }
+    public static void InserirUsuario(String username, String password, String nome, String nascimento) {
+        try {
+            //Abre conexão
+            Connection conn = connection();
+
+            //Prepara a execução de um SQL
+            PreparedStatement preparedStatement = conn.prepareStatement(
+                    "INSERT into usuarios (username, password, nome, nascimento)"
+                            + "VALUES (?,?,?,?)"
+
+            );
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+            preparedStatement.setString(3, nome);
+            preparedStatement.setDate(4, java.sql.Date.valueOf(nascimento));
+
+            preparedStatement.executeUpdate();
+
+            System.out.println("Usuário Inserido!");
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void listarTodosUsuarios(){
+
+        try {
+            Connection conn = connection();
+            Statement statement = conn.createStatement();
+            ResultSet result = statement.executeQuery("SELECT * FROM usuarios");
+            while(result.next()){
+                System.out.println(result.getInt("codigo"));
+                System.out.println(result.getString("username"));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void criarTabelaProduto(){
+        try {
+
+            Connection conn = connection();
+
+            Statement statement = conn.createStatement();
+            String sql = " CREATE TABLE IF NOT EXISTS Produto ("
+                    + " id_produto SERIAL CONSTRAINT pk_produto PRIMARY KEY,"
+                    + " descricao varchar (255) not null,"
+                    + " valor money not null ";
+
+
+            statement.executeUpdate(sql);
+
+            System.out.println("TABELA CRIADA");
+
+        }catch (SQLException exception){
+            exception.printStackTrace();
+        }
+
+    public static void criarTabelaCliente(){
+        try {
+
+            Connection conn = connection();
+
+            Statement statement = conn.createStatement();
+            String sql = " CREATE TABLE IF NOT EXISTS Venda ("
+                    + " id_venda SERIAL CONSTRAINT pk_venda PRIMARY KEY,"
+                    + " cliente integer CONSTRAINT fk_cliente references Cliente(id_Cliente),"
+                    + " produto INTEGER CONSTRAINT fk_produto references Produto(id_produto) ";
+
+
+            statement.executeUpdate(sql);
+
+            System.out.println("TABELA CRIADA");
+
+        }catch (SQLException exception){
+            exception.printStackTrace();
+        }
+    }
+    public static void criarTabelaVenda(){
+        try {
+
+            Connection conn = connection();
+
+            Statement statement = conn.createStatement();
+            String sql = " CREATE TABLE IF NOT EXISTS Cliente ("
+                    + " id_Cliente SERIAL CONSTRAINT pk_cliente PRIMARY KEY,"
+                    + " nome varchar (255) not null,"
+                    + " cpf varchar( 15) unique "
+                    + " cliente integer CONSTRAINT fk_cliente references Cliente(id_Cliente),"
+                    + " produto INTEGER CONSTRAINT fk_produto references Produto(id_produto) ";
+
+
+            statement.executeUpdate(sql);
+
+            System.out.println("TABELA CRIADA");
+
+        }catch (SQLException exception){
+            exception.printStackTrace();
+        }
+    }
+
+
+
+
+
+
+
+    
+
+
+
+
+
